@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const horarioController_1 = require("../controllers/horarioController");
+const authMiddleware_1 = require("../middleware/authMiddleware");
+const router = (0, express_1.Router)();
+router.get('/horario/semanal', horarioController_1.getHorarioSemanal);
+router.get('/horario/hoy', horarioController_1.getHorarioHoy);
+router.get('/horario/proxima', horarioController_1.getProximaClase);
+router.get('/horario/dia/:dia', horarioController_1.getClasesPorDiaSemana);
+router.post('/horario', authMiddleware_1.verificarToken, horarioController_1.crearHorario);
+router.put('/horario/:id', authMiddleware_1.verificarToken, horarioController_1.actualizarHorario);
+router.delete('/horario/:id', authMiddleware_1.verificarToken, horarioController_1.eliminarHorario);
+exports.default = router;

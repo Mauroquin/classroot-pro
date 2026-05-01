@@ -1,0 +1,1103 @@
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom PRO - Informática 6to</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --dark: #1f2937;
+      --gray: #6b7280;
+      --light: #f3f4f6;
+      --white: #ffffff;
+      --whatsapp-green: #075e54;
+      --whatsapp-light: #e5ddd5;
+      --msg-sent: #dcf8c6;
+      --msg-received: #ffffff;
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    
+    body { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      min-height: 100vh; 
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 30px;
+      animation: slideUp 0.4s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1, h2, h3 { color: var(--dark); }
+    h1 { font-size: 1.8rem; margin-bottom: 20px; }
+    h2 { font-size: 1.4rem; margin-bottom: 15px; }
+    h3 { font-size: 1.1rem; margin-bottom: 12px; }
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-secondary { background: var(--gray); color: white; }
+    .btn-sm { padding: 8px 14px; font-size: 0.85rem; }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    .form-section {
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    .tarea-card {
+      border-left: 4px solid var(--success);
+      background: linear-gradient(90deg, #f0fdf4 0%, #fff 100%);
+      padding: 18px;
+      margin: 12px 0;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .tarea-card:hover {
+      transform: translateX(4px);
+      box-shadow: var(--shadow);
+    }
+    .tarea-card h4 {
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+    .tarea-card small {
+      color: var(--gray);
+    }
+    .status-bar {
+      text-align: center;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .status-online {
+      background: linear-gradient(90deg, #d1fae5 0%, #a7f3d0 100%);
+      color: #065f46;
+    }
+    .status-offline {
+      background: linear-gradient(90deg, #fee2e2 0%, #fecaca 100%);
+      color: #991b1b;
+    }
+    .user-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: linear-gradient(90deg, #e0e7ff 0%, #c7d2fe 100%);
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+    }
+    .user-info span {
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .profesor-panel {
+      background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
+      padding: 20px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      border: 2px dashed #f59e0b;
+    }
+    .entregas-list {
+      margin-top: 15px;
+      font-size: 0.9rem;
+    }
+    .entrega-item {
+      background: white;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: var(--radius-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .alumno-panel {
+      background: linear-gradient(90deg, #dbeafe 0%, #bfdbfe 100%);
+      padding: 20px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      border: 2px dashed var(--primary);
+    }
+    /* === CHAT PANEL FLOTANTE === */
+    #chat-panel {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 380px;
+      height: 520px;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 12px 50px rgba(0,0,0,0.25);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #chat-panel.minimized {
+      transform: translateY(calc(100% - 60px));
+    }
+    #chat-header {
+      background: linear-gradient(135deg, #075e54 0%, #128c7e 100%);
+      color: white;
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+    #chat-header .toggle-icon {
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+    #chat-panel.minimized #chat-header .toggle-icon {
+      transform: rotate(180deg);
+    }
+    #chat-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #chat-box {
+      flex: 1;
+      background-image: url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h40v40H0V0zm1 1h38v38H1V1z" fill="%23e5ddd5" fill-opacity="0.4"/%3E%3C/svg%3E');
+      background-color: var(--whatsapp-light);
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .msg-bubble {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      position: relative;
+      animation: msgIn 0.2s ease;
+      word-wrap: break-word;
+    }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .msg-sent {
+      background: linear-gradient(135deg, #dcf8c6 0%, #c5e8b8 100%);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-received {
+      background: var(--white);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .msg-sender {
+      font-size: 0.75rem;
+      color: var(--success);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .msg-time {
+      font-size: 0.7rem;
+      color: var(--gray);
+      text-align: right;
+      margin-top: 4px;
+    }
+    .msg-image {
+      max-width: 100%;
+      border-radius: 12px;
+      margin: 6px 0;
+    }
+    .msg-file {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.05);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--primary);
+      margin: 4px 0;
+    }
+    .msg-link {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+    #chat-input-area {
+      background: white;
+      padding: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .attach-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .attach-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--light);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .attach-btn:hover {
+      background: #e5e7eb;
+      transform: scale(1.05);
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    #chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 24px;
+      border: 2px solid #e5e7eb;
+    }
+    #chat-input:focus {
+      border-color: var(--primary);
+    }
+    #send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    #send-btn:hover {
+      background: var(--primary-hover);
+      transform: scale(1.05);
+    }
+    .adjunto-preview {
+      padding: 8px 12px;
+      background: #f0fdf4;
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .remove-adjunto {
+      background: var(--danger);
+      color: white;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .hidden { display: none !important; }
+    .fade-in {
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @media (max-width: 768px) {
+      #chat-panel {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+      }
+    }
+
+    /* === HORARIO SEMANAL === */
+    .horario-card {
+      background: white;
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .horario-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .horario-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .horario-tab {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 20px;
+      background: var(--light);
+      color: var(--gray);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .horario-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .horario-tab:hover:not(.active) {
+      background: #e5e7eb;
+    }
+
+    .clase-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: var(--light);
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+
+    .clase-item:hover {
+      transform: translateX(4px);
+      box-shadow: var(--shadow);
+    }
+
+    .clase-color {
+      width: 4px;
+      height: 40px;
+      border-radius: 2px;
+    }
+
+    .clase-info {
+      flex: 1;
+    }
+
+    .clase-materia {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+
+    .clase-horario {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .clase-profesor {
+      font-size: 0.8rem;
+      color: var(--primary);
+    }
+
+    .clase-actual {
+      background: linear-gradient(90deg, #d1fae5 0%, #a7f3d0 100%);
+      border: 2px solid var(--success);
+    }
+
+    .clase-proxima {
+      background: linear-gradient(90deg, #dbeafe 0%, #bfdbfe 100%);
+      border: 2px dashed var(--primary);
+    }
+
+    .next-class-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+    }
+
+    .next-class-label {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+
+    .next-class-materia {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .next-class-info {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .tareas-pendientes-card {
+      background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 4px solid var(--warning);
+    }
+  </style>
+</head>
+<body>
+  <div id="status" class="status-bar status-offline">🔌 Desconectado</div>
+  <!-- AUTH SECTION -->
+  <div id="auth-section" class="container">
+    <h1 style="text-align: center;">🎓 Classroom PRO</h1>
+    <p style="text-align: center; color: var(--gray); margin-bottom: 25px;">Informática 6to Año</p>
+    
+    <div class="tab-buttons">
+      <button class="btn btn-secondary" onclick="cambiarPestaña('login')" style="flex:1;">Iniciar Sesión</button>
+      <button class="btn btn-secondary" onclick="cambiarPestaña('registro')" style="flex:1;">Registrarse</button>
+    </div>
+    <div id="form-registro" class="form-section hidden">
+      <h2>📝 Crear Cuenta</h2>
+      <div class="form-group">
+        <label>Nombre Completo</label>
+        <input id="reg-nombre" type="text" placeholder="Juan Pérez">
+      </div>
+      <div class="form-group">
+        <label>Correo Institucional</label>
+        <input id="reg-email" type="email" placeholder="juan@colegio.edu">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input id="reg-pass" type="password" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label>Rol</label>
+        <select id="reg-rol">
+          <option value="alumno">Estudiante</option>
+          <option value="profesor">Profesor</option>
+        </select>
+      </div>
+      <button class="btn btn-success" onclick="ejecutarRegistro()" style="width:100%;">Registrarme</button>
+    </div>
+    <div id="form-login" class="form-section">
+      <h2>🔐 Ingresar</h2>
+      <div class="form-group">
+        <label>Correo</label>
+        <input id="log-email" type="email" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input id="log-pass" type="password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" onclick="ejecutarLogin()" style="width:100%;">Entrar al Aula</button>
+    </div>
+  </div>
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="container hidden">
+    <div class="user-info">
+      <span id="user-info-text">👤 Usuario</span>
+      <button class="btn btn-danger btn-sm" onclick="logout()">Salir</button>
+    </div>
+
+    <!-- SIGUIENTE CLASE -->
+    <div id="next-class-section" class="next-class-card hidden">
+      <div class="next-class-label">⏰ Próxima Clase</div>
+      <div id="next-class-materia" class="next-class-materia">Cargando...</div>
+      <div id="next-class-info" class="next-class-info"></div>
+    </div>
+
+    <!-- HORARIO SEMANAL -->
+    <div id="horario-section" class="horario-card hidden">
+      <div class="horario-header">
+        <h3>📅 Horario Semanal</h3>
+      </div>
+      <div class="horario-tabs" id="horario-tabs">
+        <button class="horario-tab" data-dia="1">Lun</button>
+        <button class="horario-tab" data-dia="2">Mar</button>
+        <button class="horario-tab" data-dia="3">Mié</button>
+        <button class="horario-tab" data-dia="4">Jue</button>
+        <button class="horario-tab" data-dia="5">Vie</button>
+        <button class="horario-tab" data-dia="6">Sáb</button>
+      </div>
+      <div id="horario-clases">
+        <p style="color: var(--gray);">Cargando horario...</p>
+      </div>
+    </div>
+
+    <!-- TAREAS PENDIENTES -->
+    <div id="tareas-pendientes-section" class="horario-card tareas-pendientes-card hidden">
+      <h3>⚠️ Tareas Pendientes</h3>
+      <div id="tareas-pendientes-list">
+        <p style="color: var(--gray);">Cargando...</p>
+      </div>
+    </div>
+    <!-- PROFESOR TOOLS -->
+    <div id="profesor-tools" class="profesor-panel hidden">
+      <h3>➕ Publicar Nueva Tarea</h3>
+      <div class="form-group">
+        <label>Título</label>
+        <input id="new-titulo" type="text" placeholder="Ej: Taller de Redes">
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea id="new-desc" placeholder="Instrucciones de la tarea..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Fecha de Entrega</label>
+        <input id="new-fecha" type="datetime-local">
+      </div>
+      <button class="btn btn-success" onclick="publicarTarea()">Publicar Tarea</button>
+      <div style="margin-top: 20px; border-top: 2px dashed #f59e0b; padding-top: 15px;">
+        <h3>📥 Trabajos Recibidos</h3>
+        <button class="btn btn-sm btn-primary" onclick="cargarEntregas()">Ver Entregas</button>
+        <div id="lista-entregas" class="entregas-list"></div>
+      </div>
+    </div>
+    <!-- TAREAS -->
+    <div class="form-section">
+      <h3>📋 Tareas del Aula</h3>
+      <div id="tareas-list">
+        <p style="color: var(--gray);">Cargando tareas...</p>
+      </div>
+    </div>
+    <!-- ALUMNO TOOLS -->
+    <div id="alumno-tools" class="alumno-panel hidden">
+      <h3>📤 Entregar Tarea</h3>
+      <div class="form-group">
+        <label>Seleccionar Archivo</label>
+        <input type="file" id="file-entrega">
+      </div>
+      <button class="btn btn-primary" onclick="subirArchivo()">Enviar Archivo</button>
+    </div>
+  </div>
+  <!-- CHAT PANEL FLOTANTE -->
+  <div id="chat-panel">
+    <div id="chat-header" onclick="toggleChat()">
+      <span>💬 Chat de Clase</span>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div id="chat-content">
+      <div id="chat-box"></div>
+      <div id="adjunto-preview"></div>
+      <div id="chat-input-area">
+        <div class="attach-row">
+          <input type="file" id="file-input" style="display:none" onchange="previewAdjunto(this, 'file')">
+          <input type="file" id="img-input" style="display:none" accept="image/*" onchange="previewAdjunto(this, 'image')">
+          <input type="file" id="video-input" style="display:none" accept="video/*" onchange="previewAdjunto(this, 'video')">
+          <button class="attach-btn" onclick="document.getElementById('file-input').click()" title="Archivo">📄</button>
+          <button class="attach-btn" onclick="document.getElementById('img-input').click()" title="Imagen">🖼️</button>
+          <button class="attach-btn" onclick="agregarVideoLink()" title="Enlace">🔗</button>
+          <button class="attach-btn" onclick="document.getElementById('video-input').click()" title="Video">🎥</button>
+        </div>
+        <div class="input-row">
+          <input id="chat-input" type="text" placeholder="Escribe un mensaje...">
+          <button id="send-btn" onclick="enviarMensaje()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  // === VARIABLES GLOBALES ===
+  let token = localStorage.getItem('token');
+  let socket = null;
+  let archivosAdjuntos = [];
+  let currentUser = null;
+  window.horarioData = null;
+  // === AUTENTICACIÓN ===
+  function cambiarPestaña(tipo) {
+    const formLogin = document.getElementById('form-login');
+    const formRegistro = document.getElementById('form-registro');
+    
+    if (tipo === 'login') {
+      formLogin.classList.remove('hidden');
+      formRegistro.classList.add('hidden');
+    } else {
+      formLogin.classList.add('hidden');
+      formRegistro.classList.remove('hidden');
+    }
+  }
+  async function ejecutarRegistro() {
+    const full_name = document.getElementById('reg-nombre').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-pass').value;
+    const role = document.getElementById('reg-rol').value;
+    if (!full_name || !email || !password) {
+      return alert('⚠️ Completa todos los campos');
+    }
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name, email, password, role })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Registro exitoso. Inicia sesión.');
+        cambiarPestaña('login');
+      } else {
+        alert('❌ ' + (data.msg || 'Error al registrarse'));
+      }
+    } catch (e) {
+      alert('❌ Error de conexión');
+    }
+  }
+  async function ejecutarLogin() {
+    const email = document.getElementById('log-email').value.trim();
+    const password = document.getElementById('log-pass').value;
+    if (!email || !password) {
+      return alert('⚠️ Ingresa email y contraseña');
+    }
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.usuario));
+        location.reload();
+      } else {
+        alert('❌ ' + (data.msg || 'Credenciales incorrectas'));
+      }
+    } catch (e) {
+      alert('❌ Error de conexión');
+    }
+  }
+  // === INICIALIZACIÓN ===
+  function initApp() {
+    const userData = localStorage.getItem('user');
+    if (!userData) return;
+    const user = JSON.parse(userData);
+    currentUser = user;
+    document.getElementById('auth-section').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('user-info-text').textContent = `👤 ${user.nombre} (${user.rol})`;
+    if (user.rol === 'profesor') {
+      document.getElementById('profesor-tools').classList.remove('hidden');
+    } else if (user.rol === 'alumno') {
+      document.getElementById('alumno-tools').classList.remove('hidden');
+    }
+    document.getElementById('horario-section').classList.remove('hidden');
+    document.getElementById('tareas-pendientes-section').classList.remove('hidden');
+    document.getElementById('next-class-section').classList.remove('hidden');
+    if (user.rol === 'alumno' || user.rol === 'profesor') {
+      document.getElementById('horario-section').classList.remove('hidden');
+    }
+    conectarSocket();
+    cargarTareas();
+    cargarHorarioSemanal();
+    cargarProximaClase();
+    cargarTareasPendientes();
+    setupHorarioTabs();
+  }
+  // === WEBSOCKETS ===
+  function conectarSocket() {
+    socket = io();
+    
+    socket.on('connect', () => {
+      const status = document.getElementById('status');
+      status.textContent = '🟢 En Línea';
+      status.className = 'status-bar status-online';
+    });
+    socket.on('disconnect', () => {
+      const status = document.getElementById('status');
+      status.textContent = '🔌 Desconectado';
+      status.className = 'status-bar status-offline';
+    });
+    socket.on('mensaje_chat', (data) => {
+      renderMensaje(data);
+    });
+  }
+  function renderMensaje(data) {
+    const chatBox = document.getElementById('chat-box');
+    const isSent = currentUser && data.usuario === currentUser.nombre;
+    
+    let html = `
+      <div class="msg-bubble ${isSent ? 'msg-sent' : 'msg-received'}">
+        ${!isSent ? `<div class="msg-sender">${data.usuario}</div>` : ''}
+        <div>${data.texto || ''}</div>
+    `;
+    if (data.adjuntos && data.adjuntos.length > 0) {
+      data.adjuntos.forEach(adj => {
+        if (adj.tipo === 'imagen') {
+          html += `<img src="${adj.contenido}" class="msg-image" alt="${adj.nombre}">`;
+        } else if (adj.tipo === 'video') {
+          html += `<video controls src="${adj.contenido}" class="msg-image"></video>`;
+        } else if (adj.tipo === 'archivo') {
+          html += `<a href="${adj.contenido}" class="msg-file" download>📄 ${adj.nombre}</a>`;
+        } else if (adj.tipo === 'enlace') {
+          html += `<a href="${adj.url}" class="msg-link" target="_blank">🔗 Ver Video</a>`;
+        }
+      });
+    }
+    html += `<div class="msg-time">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div></div>`;
+    
+    chatBox.innerHTML += html;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+  function enviarMensaje() {
+    const input = document.getElementById('chat-input');
+    const texto = input.value.trim();
+    if (!texto && archivosAdjuntos.length === 0) {
+      return;
+    }
+    
+    if (!socket || !currentUser) return;
+    const mensaje = { 
+      usuario: currentUser.nombre, 
+      texto: texto,
+      adjuntos: archivosAdjuntos 
+    };
+    socket.emit('enviar_mensaje', mensaje);
+    
+    input.value = '';
+    archivosAdjuntos = [];
+    document.getElementById('adjunto-preview').innerHTML = '';
+    document.getElementById('adjunto-preview').classList.add('hidden');
+  }
+  // === ADJUNTOS ===
+  function previewAdjunto(input, tipo) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      const contenido = e.target.result;
+      
+      if (tipo === 'image') {
+        archivosAdjuntos.push({ tipo: 'imagen', contenido, nombre: file.name });
+      } else if (tipo === 'video') {
+        archivosAdjuntos.push({ tipo: 'video', contenido, nombre: file.name });
+      } else {
+        archivosAdjuntos.push({ tipo: 'archivo', nombre: file.name, contenido });
+      }
+      
+      renderAdjuntoPreview();
+    };
+    if (tipo === 'image') {
+      reader.readAsDataURL(file);
+    } else if (tipo === 'video') {
+      reader.readAsDataURL(file);
+    } else {
+      reader.readAsDataURL(file);
+    }
+    
+    input.value = '';
+  }
+  function agregarVideoLink() {
+    const url = prompt('Ingresa la URL del video (YouTube, Vimeo, etc):');
+    if (url) {
+      archivosAdjuntos.push({ tipo: 'enlace', url });
+      renderAdjuntoPreview();
+    }
+  }
+  function renderAdjuntoPreview() {
+    const preview = document.getElementById('adjunto-preview');
+    preview.classList.remove('hidden');
+    
+    preview.innerHTML = archivosAdjuntos.map((a, i) => {
+      let icon = '📄';
+      let name = a.nombre || a.url;
+      
+      if (a.tipo === 'imagen') icon = '🖼️';
+      if (a.tipo === 'video') icon = '🎥';
+      if (a.tipo === 'enlace') icon = '🔗';
+      
+      return `
+        <div class="adjunto-preview">
+          <span>${icon} ${name.substring(0, 25)}${name.length > 25 ? '...' : ''}</span>
+          <button class="remove-adjunto" onclick="removeAdjunto(${i})">×</button>
+        </div>
+      `;
+    }).join('');
+  }
+  function removeAdjunto(index) {
+    archivosAdjuntos.splice(index, 1);
+    if (archivosAdjuntos.length === 0) {
+      document.getElementById('adjunto-preview').classList.add('hidden');
+      document.getElementById('adjunto-preview').innerHTML = '';
+    } else {
+      renderAdjuntoPreview();
+    }
+  }
+  // === CHAT PANEL TOGGLE ===
+  function toggleChat() {
+    const panel = document.getElementById('chat-panel');
+    panel.classList.toggle('minimized');
+  }
+  // === TAREAS ===
+  async function cargarTareas() {
+    try {
+      const res = await fetch('/api/tareas/todas', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return;
+      const tareas = await res.json();
+      const listDiv = document.getElementById('tareas-list');
+      
+      if (tareas.length === 0) {
+        listDiv.innerHTML = '<p style="color: var(--gray);">No hay tareas publicadas.</p>';
+        return;
+      }
+      listDiv.innerHTML = tareas.map(t => `
+        <div class="tarea-card fade-in">
+          <h4>📚 ${t.titulo}</h4>
+          <p>${t.descripcion || ''}</p>
+          <small>📅 Entrega: ${new Date(t.fecha_entrega).toLocaleString()}</small>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error('Error al cargar tareas:', e);
+    }
+  }
+  async function publicarTarea() {
+    const titulo = document.getElementById('new-titulo').value.trim();
+    const descripcion = document.getElementById('new-desc').value.trim();
+    const fecha = document.getElementById('new-fecha').value;
+    if (!titulo || !fecha) {
+      return alert('⚠️ Completa el título y la fecha de entrega');
+    }
+    try {
+      const res = await fetch('/api/tareas/crear', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ 
+          titulo, 
+          descripcion, 
+          fecha_entrega: fecha, 
+          materia_id: 1 
+        })
+      });
+      if (res.ok) {
+        alert('🚀 Tarea publicada');
+        document.getElementById('new-titulo').value = '';
+        document.getElementById('new-desc').value = '';
+        document.getElementById('new-fecha').value = '';
+        cargarTareas();
+      } else {
+        alert('❌ Error al publicar tarea');
+      }
+    } catch (e) {
+      alert('❌ Error de conexión');
+    }
+  }
+  // === ENTREGAS ===
+  async function cargarEntregas() {
+    try {
+      const res = await fetch('/api/tareas/ver-entregas', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const entregas = await res.json();
+      const listDiv = document.getElementById('lista-entregas');
+      
+      if (entregas.length === 0) {
+        listDiv.innerHTML = '<p style="color: var(--gray);">Nadie ha entregado aún.</p>';
+        return;
+      }
+      listDiv.innerHTML = entregas.map(e => `
+        <div class="entrega-item">
+          <div>
+            <strong>${e.alumno}</strong> → <em>${e.tarea}</em>
+          </div>
+          <a href="/${e.file_path}" target="_blank" class="btn btn-sm btn-primary">📄 Ver</a>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error('Error:', e);
+    }
+  }
+  async function subirArchivo() {
+    const fileInput = document.getElementById('file-entrega');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+      return alert('⚠️ Selecciona un archivo');
+    }
+    const formData = new FormData();
+    formData.append('archivo', fileInput.files[0]);
+    formData.append('assignment_id', 1);
+    try {
+      const res = await fetch('/api/tareas/entregar', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        alert('✅ ' + data.msg);
+        fileInput.value = '';
+      } else {
+        alert('❌ ' + data.msg);
+      }
+    } catch (e) {
+      alert('❌ Error de conexión');
+    }
+  }
+  // === LOGOUT ===
+  function logout() {
+    localStorage.clear();
+    location.reload();
+  }
+
+  // === HORARIO SEMANAL ===
+  async function cargarHorarioSemanal() {
+    try {
+      const res = await fetch('/api/horario/semanal', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      window.horarioData = data.semana;
+      renderHorarioDia(new Date().getDay() || 1);
+    } catch (e) {
+      console.error('Error:', e);
+    }
+  }
+
+  function setupHorarioTabs() {
+    const tabs = document.querySelectorAll('.horario-tab');
+    const today = new Date().getDay() || 1;
+    tabs.forEach((tab) => {
+      const dia = parseInt(tab.dataset.dia);
+      if (dia === today) tab.classList.add('active');
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderHorarioDia(dia);
+      });
+    });
+  }
+
+  function renderHorarioDia(dia) {
+    const container = document.getElementById('horario-clases');
+    const diaData = window.horarioData?.find((d) => d.dia === dia);
+    if (!diaData || diaData.clases.length === 0) {
+      container.innerHTML = '<p style="color: var(--gray);">No hay clases este día</p>';
+      return;
+    }
+    container.innerHTML = diaData.clases.map((c) => `
+      <div class="clase-item">
+        <div class="clase-color" style="background: ${c.color || 'var(--primary)'}"></div>
+        <div class="clase-info">
+          <div class="clase-materia">${c.materia}</div>
+          <div class="clase-horario">🕐 ${c.horaInicio} - ${c.horaFin}</div>
+          <div class="clase-profesor">👨‍🏫 ${c.profesor}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function cargarProximaClase() {
+    try {
+      const res = await fetch('/api/horario/proxima', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const next = data.proximaClase;
+      if (next) {
+        document.getElementById('next-class-materia').textContent = next.materia;
+        document.getElementById('next-class-info').textContent = 
+          `🕐 ${next.horaInicio} - ${next.horaFin} • ${next.nombreCorto}`;
+      } else {
+        document.getElementById('next-class-section').classList.add('hidden');
+      }
+    } catch (e) {
+      console.error('Error:', e);
+    }
+  }
+
+  async function cargarTareasPendientes() {
+    try {
+      const res = await fetch('/api/tareas/todas', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return;
+      const tareas = await res.json();
+      const ahora = new Date();
+      const pendientes = tareas.filter((t) => new Date(t.fecha_entrega) > ahora);
+      const container = document.getElementById('tareas-pendientes-list');
+      if (pendientes.length === 0) {
+        container.innerHTML = '<p style="color: var(--success);">✓ No hay tareas pendientes</p>';
+        return;
+      }
+      container.innerHTML = pendientes.map((t) => `
+        <div class="tarea-card" style="background: white;">
+          <h4>${t.titulo}</h4>
+          <small>📅 Entrega: ${new Date(t.fecha_entrega).toLocaleString()}</small>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error('Error:', e);
+    }
+  }
+
+  // === ENTER KEY ===
+  document.getElementById('chat-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') enviarMensaje();
+  });
+  document.getElementById('log-pass').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') ejecutarLogin();
+  });
+  // === INICIAR APP ===
+  if (token) initApp();
+</script>
+</body>
+</html>

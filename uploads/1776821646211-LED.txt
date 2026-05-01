@@ -1,0 +1,30 @@
+let NUM1 = 0
+let NUM2 = 0
+let SUMA = 0
+input.onButtonPressed(Button.A, function () {
+    NUM1 = randint(1, 9)
+    basic.showNumber(NUM1)
+    basic.showLeds(`
+        . . # . .
+        . . # . .
+        # # # # #
+        . . # . .
+        . . # . .
+        `)
+})
+input.onButtonPressed(Button.B, function () {
+    NUM2 = randint(1, 9)
+    basic.showNumber(NUM2)
+    basic.showLeds(`
+        . . . . .
+        # # # # #
+        . . . . .
+        # # # # #
+        . . . . .
+        `)
+    SUMA = NUM1 + NUM2
+    basic.showNumber(SUMA)
+})
+basic.forever(function () {
+	
+})
