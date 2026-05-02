@@ -13,7 +13,7 @@ services:
       - .env.prod
     environment:
       - RUN_SEED=true  # Cámbialo a 'false' después del primer despliegue
-      - DB_HOST=mysql
+      - DB_HOST=classroom_mysql_prod
     volumes:
       - uploads_data:/app/uploads
     networks:
