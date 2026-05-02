@@ -43,6 +43,21 @@ networks:
   classroom_net:
     driver: bridge
 
+# ... (todo lo anterior está perfecto)
+
 volumes:
+  # Definimos los nombres de los volúmenes que usamos arriba en 'services'
   mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/dev-disk-by-uuid-8f833626-ada9-4822-8061-ea9a6ddcaddb/classroom_data/mysql
+  
   uploads_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/dev-disk-by-uuid-8f833626-ada9-4822-8061-ea9a6ddcaddb/classroom_data/uploads
+
