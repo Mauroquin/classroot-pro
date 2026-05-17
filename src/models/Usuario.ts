@@ -1,7 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
-import db from '../config/database'; // Importamos la conexión, NO al modelo
+import db from '../config/database'; 
 
-// 1. Definimos la clase (aquí NO debe haber imports de 'Usuario')
 class Usuario extends Model {
   public id!: number;
   public full_name!: string;
@@ -10,7 +9,6 @@ class Usuario extends Model {
   public role!: 'profesor' | 'alumno' | 'delegado';
 }
 
-// 2. Inicializamos la tabla
 Usuario.init(
   {
     id: {
@@ -21,29 +19,32 @@ Usuario.init(
     full_name: {
       type: DataTypes.STRING(100),
       allowNull: false,
+      field: 'nombre', // <--- MAPEA A LA COLUMNA 'nombre' EN MYSQL
     },
     email: {
       type: DataTypes.STRING(100),
       allowNull: false,
       unique: true,
+      field: 'email',
     },
     password_hash: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      field: 'password', // <--- MAPEA A LA COLUMNA 'password' EN MYSQL
     },
     role: {
       type: DataTypes.ENUM('profesor', 'alumno', 'delegado'),
       allowNull: false,
+      field: 'rol', // <--- MAPEA A LA COLUMNA 'rol' EN MYSQL
     },
   },
   {
     sequelize: db,
-    tableName: 'users',
+    tableName: 'usuarios', // <--- NOMBRE REAL DE TU TABLA EN MYSQL
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: false,
   }
 );
 
-// 3. Exportamos el modelo para que otros archivos lo usen
 export default Usuario;
