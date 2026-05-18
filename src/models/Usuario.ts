@@ -19,7 +19,7 @@ Usuario.init(
     full_name: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      field: 'nombre', // <--- MAPEA A LA COLUMNA 'nombre' EN MYSQL
+      field: 'nombre', // Mapea a la columna real 'nombre'
     },
     email: {
       type: DataTypes.STRING(100),
@@ -30,20 +30,18 @@ Usuario.init(
     password_hash: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      field: 'password', // <--- MAPEA A LA COLUMNA 'password' EN MYSQL
+      field: 'password', // Mapea a la columna real 'password'
     },
     role: {
       type: DataTypes.ENUM('profesor', 'alumno', 'delegado'),
       allowNull: false,
-      field: 'rol', // <--- MAPEA A LA COLUMNA 'rol' EN MYSQL
+      field: 'rol', // Mapea a la columna real 'rol'
     },
   },
   {
     sequelize: db,
-    tableName: 'usuarios', // <--- NOMBRE REAL DE TU TABLA EN MYSQL
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: false,
+    tableName: 'usuarios', // Tu tabla física real en MySQL
+    timestamps: false,     // <--- DESACTIVADO: Tu tabla no tiene columnas de fecha
   }
 );
 
