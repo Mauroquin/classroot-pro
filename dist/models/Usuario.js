@@ -4,11 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const database_1 = __importDefault(require("../config/database")); // Importamos la conexión, NO al modelo
-// 1. Definimos la clase (aquí NO debe haber imports de 'Usuario')
+const database_1 = __importDefault(require("../config/database"));
 class Usuario extends sequelize_1.Model {
 }
-// 2. Inicializamos la tabla
 Usuario.init({
     id: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -18,26 +16,27 @@ Usuario.init({
     full_name: {
         type: sequelize_1.DataTypes.STRING(100),
         allowNull: false,
+        field: 'nombre', // Mapea a la columna real 'nombre'
     },
     email: {
         type: sequelize_1.DataTypes.STRING(100),
         allowNull: false,
         unique: true,
+        field: 'email',
     },
     password_hash: {
         type: sequelize_1.DataTypes.STRING(255),
         allowNull: false,
+        field: 'password', // Mapea a la columna real 'password'
     },
     role: {
         type: sequelize_1.DataTypes.ENUM('profesor', 'alumno', 'delegado'),
         allowNull: false,
+        field: 'rol', // Mapea a la columna real 'rol'
     },
 }, {
     sequelize: database_1.default,
-    tableName: 'users',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: false,
+    tableName: 'usuarios', // Tu tabla física real en MySQL
+    timestamps: false, // <--- DESACTIVADO: Tu tabla no tiene columnas de fecha
 });
-// 3. Exportamos el modelo para que otros archivos lo usen
 exports.default = Usuario;

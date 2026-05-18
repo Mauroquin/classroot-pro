@@ -10,7 +10,7 @@ const routes_1 = __importDefault(require("./routes"));
 const websocket_1 = require("./websocket");
 const database_1 = require("./config/database");
 const seed_1 = require("./seed");
-const API_URL = "http://localhost:3001/api";
+const API_URL = "http://localhost:3000/api";
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);
 app.use((0, cors_1.default)());
@@ -28,7 +28,7 @@ app.get('/health', (req, res) => {
 });
 app.use('/api', routes_1.default);
 (0, websocket_1.initSocket)(httpServer);
-const PORT = 3001;
+const PORT = 3000;
 const startServer = async () => {
     try {
         await (0, database_1.conectarDB)();
