@@ -11,28 +11,24 @@ Tarea.init({
     },
     titulo: { 
         type: DataTypes.STRING, 
-        field: 'title', // <--- ESTO mapea 'titulo' con la columna 'title' de MySQL
         allowNull: false 
     },
     descripcion: { 
-        type: DataTypes.TEXT,
-        field: 'description' // <--- Mapea con 'description'
+        type: DataTypes.TEXT
     },
     fecha_entrega: { 
         type: DataTypes.DATE, 
-        field: 'due_date', // <--- Mapea con 'due_date'
         allowNull: false 
     },
     materia_id: { 
         type: DataTypes.INTEGER, 
-        field: 'course_id', // <--- Mapea con 'course_id'
         allowNull: true 
     }
 }, {
     sequelize: db,
-    tableName: 'tareas', // <--- CAMBIA 'assignments' por 'tareas'
+    tableName: 'tareas', 
     timestamps: false,
-    freezeTableName: true // <--- AÑADE ESTO para evitar traducciones automáticas
+    freezeTableName: true 
 });
 
 export default Tarea;
