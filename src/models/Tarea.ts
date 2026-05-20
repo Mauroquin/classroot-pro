@@ -30,8 +30,9 @@ Tarea.init({
     }
 }, {
     sequelize: db,
-    tableName: 'assignments', 
-    timestamps: false
+    tableName: 'tareas', // <--- CAMBIA 'assignments' por 'tareas'
+    timestamps: false,
+    freezeTableName: true // <--- AÑADE ESTO para evitar traducciones automáticas
 });
 
 export default Tarea;

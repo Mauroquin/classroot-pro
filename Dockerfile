@@ -5,6 +5,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY tsconfig.json ./
+RUN apk add --no-cache python3 make g++
 
 RUN npm install
 
